@@ -1,17 +1,24 @@
 import unicodedata
 from os import path
-from collections import OrderedDict
 
 
-# név alapján email generálást végzi
+# név alapján email generálást végez, 2-nél több elemű névre is működik
 def email_gen(name):
-    normal = []
+    normal = ""
+    email = ""
+    szamlalo = 1
 
-    normal1 = unicodedata.normalize('NFKD', name[0]).encode('ASCII', 'ignore')
-    normal2 = unicodedata.normalize('NFKD', name[1]).encode('ASCII', 'ignore')
+    for elem in name:
+        elem = elem.lower()
+        normal = unicodedata.normalize('NFKD', elem).encode('ASCII', 'ignore')
+        if szamlalo < len(name):
+            normal = normal.decode("utf-8") + "."
 
-    email = str.lower(normal1.decode("utf-8")) + "." + str.lower(
-        normal2.decode("utf-8")) + "@company.hu"
+        else:
+            normal = normal.decode("utf-8")
+        email = email + normal
+        szamlalo = szamlalo + 1
+    email = email + "@company.hu"
     return email
 
 
@@ -21,42 +28,39 @@ def pwd_gen(name):
     return pwd
 
 
-names = [['Kovács', 'Béla'], ['Kiss', 'Gyula', 'Kristóf'], ['Szabó', 'Ervin']]
+# név lekérdezés sorba rendezéshez
+def get_name(elem):
+    return elem.get('name')
 
-user = dict()
 
-print(f'{names}\n')
-
+names = [['Kovács', 'Béla'], ['Kiss', 'Gyula', 'Kristóf'], ['Szabó', 'Ervin'],
+         ['Kovács', 'Aladár']]
+users = []
 new_user = {'name': '', 'email': '', 'password': ''}
 
-#betöltjük az adatot és legeneráljuk az email címet és pwd-t
+#betöltjük az adatot és legeneráljuk az email címet és a pwd-öt
 
 for i in range(len(names)):
-    new_user = {'name': '', 'email': '', 'password': ''}
+    new_user = {}
     new_user['name'] = names[i]
     new_user['email'] = email_gen(names[i])
     new_user['password'] = pwd_gen(names[i][0])
-    user[i] = new_user
+    users.append(new_user)
 
-# print(user)
+# ABC sorrendbe tesszük a user-eket név alapján
 
-# ABC sorrendbe tesszük név alapján
-ordered_user = dict(sorted(user.items(), key=lambda item: item[1]['name']))
+users.sort(key=get_name)
 
-print(ordered_user)
+# print(users)
 
 # lekerdezzuk az aktualis mappat
 current_path = path.dirname(__file__)
 print(current_path)
 file_name = 'nevek.txt'
 
-# kiírjuk fájlba megadott struktúrában
+# kiírjuk fájlba a megadott struktúrában
 with open(path.join(current_path, file_name), 'w') as f:
-    for i in range(len(ordered_user)):
+    for i in range(len(users)):
         f.write(
-            f'{ordered_user[i]["name"][0]} {ordered_user[i]["name"][1]} {ordered_user[i]["email"]} {ordered_user[i]["password"]}\n'
+            f'{users[i]["name"][0]} {users[i]["name"][1]} {users[i]["email"]} {users[i]["password"]}\n'
         )
-
-# Bugs:
-#1 több elemű névre is működjön!
-#2 nem sorrendben írja a fájlba
