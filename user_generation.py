@@ -1,6 +1,9 @@
 import unicodedata
+from os import path
+from collections import OrderedDict
 
 
+# név alapján email generálást végzi
 def email_gen(name):
     normal = []
 
@@ -12,35 +15,48 @@ def email_gen(name):
     return email
 
 
+# név alapján password-öt generál
 def pwd_gen(name):
     pwd = name + "123Start"
     return pwd
 
 
-# name = ['Matuszka', 'Kristóf']
-# print(name)
-# print(email_gen(name))
-# print(pwd_gen(name[0]))
-
-names = [['Kovács', 'Béla'], ['Kiss', 'Gyula'], ['Szabó', 'Ervin']]
+names = [['Kovács', 'Béla'], ['Kiss', 'Gyula', 'Kristóf'], ['Szabó', 'Ervin']]
 
 user = dict()
+
+print(f'{names}\n')
+
 new_user = {'name': '', 'email': '', 'password': ''}
 
-for i in range(0, len(names)):
+#betöltjük az adatot és legeneráljuk az email címet és pwd-t
+
+for i in range(len(names)):
+    new_user = {'name': '', 'email': '', 'password': ''}
     new_user['name'] = names[i]
     new_user['email'] = email_gen(names[i])
     new_user['password'] = pwd_gen(names[i][0])
     user[i] = new_user
-print(user)
 
-# from os import path
+# print(user)
 
-# # lekerdezzuk az aktualis mappat
-# current_path = path.dirname(__file__)
-# print(current_path)
-# file_name = 'nevek.txt'
+# ABC sorrendbe tesszük név alapján
+ordered_user = dict(sorted(user.items(), key=lambda item: item[1]['name']))
 
-# with open(path.join(current_path, file_name), 'w') as f:
-#     for item in user:
-#         f.write(f'{item}\n')
+print(ordered_user)
+
+# lekerdezzuk az aktualis mappat
+current_path = path.dirname(__file__)
+print(current_path)
+file_name = 'nevek.txt'
+
+# kiírjuk fájlba megadott struktúrában
+with open(path.join(current_path, file_name), 'w') as f:
+    for i in range(len(ordered_user)):
+        f.write(
+            f'{ordered_user[i]["name"][0]} {ordered_user[i]["name"][1]} {ordered_user[i]["email"]} {ordered_user[i]["password"]}\n'
+        )
+
+# Bugs:
+#1 több elemű névre is működjön!
+#2 nem sorrendben írja a fájlba
